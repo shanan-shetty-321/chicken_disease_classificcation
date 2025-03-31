@@ -4,7 +4,8 @@ from src.cnnClassifier.utils.common import read_yaml,create_directories
 # as src is inside chicken_disease_classification  then src.cnnclassifier means src ke andhar cnnclassifier ke andhar waalo ko access kartha hai 
 from src.cnnClassifier.constants import *
 from src.cnnClassifier.entity.config_entity import (DataIngestionConfig,# importing the DataIngestionConfig class from config_entity.py file
-                                                    PrepareBaseModelConfig) # importing the PrepareBaseModelConfig class from config_entity.py file
+                                                    PrepareBaseModelConfig, # importing the PrepareBaseModelConfig class from config_entity.py file
+                                                    PrepareCallbacksConfig) # importing the PrepareCallbacksConfig class from config_entity.py file
 class ConfigurationManager:
     def __init__(    #for creating root folders and subfolders for data ingestion 
         self,
@@ -50,4 +51,14 @@ class ConfigurationManager:
 
         return prepare_base_model_config
     
-    
+    def get_prepare_callback_config(self) -> PrepareCallbacksConfig:
+        config = self.config.prepare_callbacks
+        model_ckpt_dir = os.path.dirname(config.checkpoint_model_filepath)
+        create_directories([
+            Path(model_ckpt_dir),
+            Path(config.tensorboard_root_log_dir)
+        ])
+
+        prepare_callback_config = PrepareCallbacksConfig(root_dir=Path(config.root_dir),tensorboard_root_log_dir=Path(config.tensorboard_root_log_dir),checkpoint_model_filepath=Path(config.checkpoint_model_filepath))
+
+        return prepare_callback_config

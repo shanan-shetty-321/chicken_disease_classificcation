@@ -1,5 +1,8 @@
-learning_rate: 0.001
-batch_size: 32
-epochs: 10
-image_size: [224, 224, 3]
-num_classes: 5
+AUGMENTATION: True
+IMAGE_SIZE: [224, 224, 3] # as per VGG 16 model
+BATCH_SIZE: 16
+INCLUDE_TOP: False
+EPOCHS: 1
+CLASSES: 2
+WEIGHTS: imagenet
+LEARNING_RATE: 0.01

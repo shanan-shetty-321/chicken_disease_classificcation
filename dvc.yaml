@@ -1,0 +1,60 @@
+stages:   #it means pipeline , which pipeline to run
+  data_ingestion: #stage name 
+    cmd: python -m src.cnnClassifier.pipeline.stage_01_data_ingestion  #execute the script in python
+    #if u r running this file in terminal, it means u r running the data ingestion
+    deps: #defining the dependencies of the stage
+      - src/cnnClassifier/pipeline/stage_01_data_ingestion.py #it depends on this file 
+      - config/config.yaml  #it also depends on the configuration 
+      #figure out and write all the dependencies of the stage
+    outs: # it will generate the output of the stage in Chicken-fecal-images folder
+      - artifacts/data_ingestion/unzip/Chicken-fecal-images
+
+
+  prepare_base_model:
+    cmd: python -m src.cnnClassifier.pipeline.stage_02_prepare_base_model
+    deps:
+      - src/cnnClassifier/pipeline/stage_02_prepare_base_model.py
+      - config/config.yaml
+    params:  #put all the parameters which u needed in the entity and the file is dependent on this parameters 
+      - IMAGE_SIZE
+      - INCLUDE_TOP
+      - CLASSES
+      - WEIGHTS
+      - LEARNING_RATE 
+    outs:
+      - artifacts/prepare_base_model
+  
+
+  training: 
+    cmd: python -m src.cnnClassifier.pipeline.stage_03_training
+    deps:
+      - src/cnnClassifier/pipeline/stage_03_training.py #depends on this file
+      - src/cnnClassifier/components/prepare_callbacks.py 
+      - config/config.yaml
+      - artifacts/data_ingestion/unzip/Chicken-fecal-images  #it needs data for execution
+      - artifacts/prepare_base_model #it needs the base model for execution
+      
+    params: #all the parameters which u needed in the entity and the file is dependent on this parameters
+      - IMAGE_SIZE
+      - EPOCHS
+      - BATCH_SIZE
+      - AUGMENTATION
+    outs:
+      - artifacts/training/model.h5  #it will generate the model in this folder
+  
+
+
+  evaluation:
+    cmd: python -m src.cnnClassifier.pipeline.stage_04_evaluation
+    deps:
+      - src/cnnClassifier/pipeline/stage_04_evaluation.py
+      - config/config.yaml
+      - artifacts/data_ingestion/unzip/Chicken-fecal-images #data
+      - artifacts/training/model.h5  #it needs the model for execution
+    params:
+      - IMAGE_SIZE
+      - BATCH_SIZE
+    metrics:  #it generated metrics.json 
+    - scores.json:
+        cache: false  #it will generate the scores.json file in the artifacts folder
+   

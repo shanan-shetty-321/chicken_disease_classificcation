@@ -1,11 +1,13 @@
 from src.cnnClassifier.constants import *
+import os
+from pathlib import Path
 from src.cnnClassifier.utils.common import read_yaml,create_directories   
 #currently humlog chicken_disease_classification ke andhar hai it can directly read from utils as immediate andhar mein voh file nhi hai 
 # as src is inside chicken_disease_classification  then src.cnnclassifier means src ke andhar cnnclassifier ke andhar waalo ko access kartha hai 
 from src.cnnClassifier.constants import *
 from src.cnnClassifier.entity.config_entity import (DataIngestionConfig,# importing the DataIngestionConfig class from config_entity.py file
                                                     PrepareBaseModelConfig, # importing the PrepareBaseModelConfig class from config_entity.py file
-                                                    PrepareCallbacksConfig,TrainingConfig) 
+                                                    PrepareCallbacksConfig,TrainingConfig,EvaluationConfig) 
 class ConfigurationManager:
     def __init__(    #for creating root folders and subfolders for data ingestion 
         self,
@@ -84,3 +86,13 @@ class ConfigurationManager:
         )
 
         return training_config
+    
+    def get_validation_config(self) -> EvaluationConfig:
+        eval_config = EvaluationConfig(
+            path_of_model=Path("artifacts/training/model.h5"),
+            training_data=Path("artifacts/data_ingestion/unzip/Chicken-fecal-images"),
+            all_params=self.params,
+            params_image_size=self.params.IMAGE_SIZE,
+            params_batch_size=self.params.BATCH_SIZE
+        )
+        return eval_config
